@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}WildSkull — Luggage & Bags Store{% endblock %}
+
+{% block content %}
+
+<section class="hero container" aria-labelledby="hero-title">
+  <div class="hero-wrap">
+    <div class="hero-card">
+      <div class="eyebrow"><span class="dot" aria-hidden="true"></span> Neon Edition · Travel & EDC</div>
+      <h1 id="hero-title">Luggage, Laptop Bags & Wallets — WildSkull Style</h1>
+      <p>Durable builds, bold designs. Trunks, purses, laptop bags, and wallets with neon attitude.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#grid">Shop Now</a>
+        <a class="btn ghost" href="#categories">Browse Categories</a>
+      </div>
+    </div>
+
+    <div class="hero-badge" aria-label="Seasonal offer">
+      <div>
+        <div class="badge-circle" aria-hidden="true"></div>
+        <p style="margin:.6rem 0 0;"><strong>Neon Fest</strong></p>
+        <small>Up to 40% off on select luggage</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories -->
+<section id="categories" class="container">
+  <div class="chips" role="tablist" aria-label="Product categories">
+    <button class="chip" role="tab" aria-selected="true" aria-current="true">All</button>
+    {% for c in categories %}
+      <button class="chip" role="tab">{{ c }}</button>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Product Grid -->
+<section id="grid" class="container" aria-labelledby="featured-title">
+  <h2 class="section-title" id="featured-title">Featured Products</h2>
+
+  <div class="grid" role="list">
+    {% for p in products %} 
+    <!-- <a href="/checkout" target="_blank" class="product-link"> </a> -->
+    <article class="product-card" role="listitem" data-id="{{ p.id }}">
+      
+        
+      <img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.title }}" loading="lazy">
+      <div class="product-body">
+        <div class="category">{{ p.category }}</div>
+        <h3 class="title">{{ p.title }}</h3>
+        <div class="price-row">
+          <div class="price">₹{{ "{:,}".format(p.price) }}</div>
+          <div class="mrp">₹{{ "{:,}".format(p.mrp) }}</div>
+          <div class="rating">★ {{ "%.1f"|format(p.rating) }}</div>
+        </div>
+        <p style="color:var(--muted); margin:.2rem 0 .6rem;">{{ p.desc }}</p>
+      </div>
+      <div class="actions">
+        <button class="btn secondary">Add to Wishlist</button>
+        <button class="btn add-to-cart" data-id="{{ p.id }}">Add to Cart</button>
+      </div>
+
+    
+    </article> 
+    
+    {% endfor %}
+  </div>
+  <!-- <img src="{{ url_for('static', filename='assets/Le_Handbag_3.jpg') }}"
+     alt="Voyager 28” Hardcase Spinner" loading="lazy" /> -->
+</section>
+
+{% endblock %}

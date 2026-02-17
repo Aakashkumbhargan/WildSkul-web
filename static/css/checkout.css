@@ -1,0 +1,98 @@
+:root {
+  --bg: #0a0a0f;
+  --card: #12121a;
+  --text: #e6e6f0;
+  --muted: #9aa3ad;
+  --accent: #00ffea;   /* neon cyan */
+  --accent-2: #ff2bd6; /* neon magenta */
+  --danger: #ff4d4f;
+  --success: #3ad29f;
+  --border: #202030;
+  --shadow: 0 8px 30px rgba(0, 255, 234, 0.08);
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; background: radial-gradient(1200px 800px at 20% 0%, #0c0c12, var(--bg));
+  color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.ws-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  background: linear-gradient(90deg, rgba(0,255,234,0.08), transparent);
+}
+.ws-brand { display: flex; align-items: center; gap: 12px; }
+.ws-logo { width: 40px; height: 40px; filter: drop-shadow(0 0 8px var(--accent)); }
+.ws-header h1 { font-size: 20px; letter-spacing: 0.4px; }
+.ws-back { color: var(--accent); text-decoration: none; font-weight: 600; }
+.ws-back:hover { color: var(--accent-2); }
+
+.ws-container {
+  display: grid; gap: 16px; padding: 20px; grid-template-columns: 1.4fr 1fr;
+}
+@media (max-width: 980px) { .ws-container { grid-template-columns: 1fr; } }
+
+.ws-card {
+  background: linear-gradient(180deg, var(--card), #0e0e16);
+  border: 1px solid var(--border); border-radius: 16px; padding: 16px;
+  box-shadow: var(--shadow);
+}
+.ws-card h2 { margin: 0 0 12px; font-size: 18px; color: var(--accent); }
+
+.cart-items { display: flex; flex-direction: column; gap: 12px; }
+.cart-row { display: flex; gap: 12px; align-items: center; }
+.cart-row img {
+  width: 72px; height: 72px; object-fit: cover; border-radius: 12px;
+  border: 1px solid #1f1f2a; box-shadow: 0 6px 16px rgba(255, 43, 214, 0.06);
+}
+.cart-info h3 { margin: 0 0 6px; font-size: 16px; }
+.cart-info p { margin: 2px 0; color: var(--muted); }
+.price { color: #ffd166; font-weight: 700; }
+
+.ws-totals { margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
+.ws-totals div { display: flex; align-items: center; justify-content: space-between; margin: 6px 0; }
+.ws-totals .grand { font-weight: 800; color: var(--accent-2); }
+
+.ws-shipping .form-group { margin-bottom: 10px; }
+.ws-shipping label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; }
+.ws-shipping input {
+  width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: #0c0c14; color: var(--text); outline: none;
+}
+.ws-shipping input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,255,234,0.12); }
+
+.grid-2 { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+.grid-3 { display: grid; gap: 10px; grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+.ws-payment .payment-methods { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.pm-option {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: 12px; background: #0e0e16; cursor: pointer;
+}
+.pm-option input { accent-color: var(--accent); }
+.pm-panel { padding: 12px; border: 1px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,0.02); }
+.pm-panel input {
+  width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: #0c0c14; color: var(--text);
+}
+.hidden { display: none; }
+
+.ws-btn {
+  margin-top: 12px; width: 100%; padding: 12px 16px; border: none; border-radius: 12px;
+  font-weight: 800; letter-spacing: 0.5px; color: #0d0d12;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  box-shadow: 0 12px 30px rgba(255, 43, 214, 0.25);
+  cursor: pointer;
+}
+.ws-btn:hover { filter: brightness(1.1); }
+
+.order-status { margin-top: 10px; font-weight: 700; }
+.order-status.error { color: var(--danger); }
+.order-status.success { color: var(--success); }
+
+.ws-footer {
+  padding: 16px 20px; text-align: center; color: var(--muted);
+  border-top: 1px solid var(--border); margin-top: 8px;
+}

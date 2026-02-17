@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout • WildSkull</title>
+  <!-- Flask static CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/checkout.css') }}">
+  <!-- If not using Flask, use: <link rel="stylesheet" href="./checkout.css"> -->
+</head>
+<body>
+  <header class="ws-header">
+    <div class="ws-brand">
+      <!-- If you have your neon SVG logo, embed it here -->
+      <img src="{{ url_for('static', filename='assets/wildskull_logo.svg') }}" alt="WildSkull Logo" class="ws-logo"/>
+      <h1>WildSkull Checkout</h1>
+    </div>
+    <a href="{{ url_for('index') if false else '#' }}" class="ws-back">← Continue Shopping</a>
+  </header>
+
+  <main class="ws-container">
+    {% for p in products %} 
+    <!-- Cart Summary -->
+    <section class="ws-card ws-cart" data-id="{{ p.id }}">
+      <h2>Order Summary</h2>
+      <div id="cart-items" class="cart-items">
+        <!-- JS will render product rows here from localStorage -->
+        <!-- Fallback demo row (remove if you render via JS) -->
+        <div class="cart-row">
+                <img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.title }}" loading="lazy">
+
+          <!-- <img src="{{ url_for('static', filename='assets/{{ p.image }}') }}" alt="Duffel Bag"/> -->
+          <div class="cart-info">
+            <h3>Duffel Bag</h3>
+            <p>Qty: 1</p>
+            <p class="price">₹1,999</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-totals">
+        <div><span>Subtotal</span><span id="subtotal">₹1,999</span></div>
+        <div><span>Shipping</span><span id="shipping">₹99</span></div>
+        <div class="grand"><span>Total</span><span id="grand-total">₹2,098</span></div>
+      </div>
+    </section>
+{% endfor %}
+    <!-- Shipping Address -->
+    <section class="ws-card ws-shipping">
+      <h2>Shipping Details</h2>
+      <form id="shipping-form" novalidate>
+        <div class="grid-2">
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" name="fullName" type="text" placeholder="Aakash Kumbhargan" required />
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" placeholder="+91 9XXXXXXXXX" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email (optional)</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com" />
+        </div>
+
+        <div class="form-group">
+          <label for="addressLine1">Address Line 1</label>
+          <input id="addressLine1" name="addressLine1" type="text" placeholder="Flat/House, Street" required />
+        </div>
+
+        <div class="form-group">
+          <label for="addressLine2">Address Line 2 (optional)</label>
+          <input id="addressLine2" name="addressLine2" type="text" placeholder="Area, Landmark" />
+        </div>
+
+        <div class="grid-3">
+          <div class="form-group">
+            <label for="city">City</label>
+            <input id="city" name="city" type="text" placeholder="Mumbai" required />
+          </div>
+          <div class="form-group">
+            <label for="state">State</label>
+            <input id="state" name="state" type="text" placeholder="Maharashtra" required />
+          </div>
+          <div class="form-group">
+            <label for="pincode">PIN Code</label>
+            <input id="pincode" name="pincode" type="text" placeholder="400001" required />
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Payment Options -->
+    <section class="ws-card ws-payment">
+      <h2>Payment</h2>
+
+      <div class="payment-methods">
+        <label class="pm-option">
+          <input type="radio" name="paymentMethod" value="cod" checked />
+          <span>Cash on Delivery (COD)</span>
+        </label>
+        <label class="pm-option">
+          <input type="radio" name="paymentMethod" value="upi" />
+          <span>UPI (Paytm / Google Pay / PhonePe)</span>
+        </label>
+        <label class="pm-option">
+          <input type="radio" name="paymentMethod" value="card" />
+          <span>Debit/Credit Card</span>
+        </label>
+      </div>
+
+      <!-- Conditional panels (toggle via JS) -->
+      <div id="upi-panel" class="pm-panel hidden">
+        <p>Enter UPI ID (e.g., <code>aakash@paytm</code>)</p>
+        <input type="text" id="upiId" placeholder="yourname@bank" />
+        <p class="hint">We’ll generate a payment request for your UPI app.</p>
+      </div>
+
+      <div id="card-panel" class="pm-panel hidden">
+        <div class="grid-2">
+          <input type="text" id="cardNumber" placeholder="Card Number"/>
+          <input type="text" id="cardName" placeholder="Name on Card"/>
+        </div>
+        <div class="grid-3">
+          <input type="text" id="expMonth" placeholder="MM"/>
+          <input type="text" id="expYear" placeholder="YY"/>
+          <input type="text" id="cvv" placeholder="CVV"/>
+        </div>
+        <p class="hint">This is a demo UI — do not enter real card details.</p>
+      </div>
+
+      <button id="place-order" class="ws-btn">Place Order</button>
+      <p id="order-status" class="order-status"></p>
+    </section>
+  </main>
+
+  <footer class="ws-footer">
+    <p>© WildSkull — Luggage & Carrying Bags • Trunks • Purses • Laptop Bags • Wallets</p>
+  </footer>
+
+  <!-- Optional JS (render cart from localStorage, toggle payment panels) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // If you store cart in localStorage, render it here
+      // Example expected structure:
+      // localStorage.setItem('ws_cart', JSON.stringify([{id: 'DUF-1', name: 'Duffel Bag', price: 1999, qty: 1, img: '/static/assets/Duffel_1.jpg'}]));
+      const cart = JSON.parse(localStorage.getItem('ws_cart') || '[]');
+      const cartEl = document.getElementById('cart-items');
+
+      if (cart.length) {
+        cartEl.innerHTML = '';
+        let subtotal = 0;
+        cart.forEach(item => {
+          subtotal += item.price * item.qty;
+          const row = document.createElement('div');
+          row.className = 'cart-row';
+          row.innerHTML = `
+            <img src="${item.img}" alt="${item.name}">
+            <div class="cart-info">
+              <h3>${item.name}</h3>
+              <p>Qty: ${item.qty}</p>
+              <p class="price">₹${(item.price * item.qty).toLocaleString('en-IN')}</p>
+            </div>
+          `;
+          cartEl.appendChild(row);
+        });
+        document.getElementById('subtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+        const shipping = subtotal > 2499 ? 0 : 99;
+        document.getElementById('shipping').textContent = `₹${shipping.toLocaleString('en-IN')}`;
+        document.getElementById('grand-total').textContent = `₹${(subtotal + shipping).toLocaleString('en-IN')}`;
+      }
+
+      // Payment method toggling
+      const pmRadios = document.querySelectorAll('input[name="paymentMethod"]');
+      const upiPanel = document.getElementById('upi-panel');
+      const cardPanel = document.getElementById('card-panel');
+      pmRadios.forEach(r => {
+        r.addEventListener('change', () => {
+          const val = r.value;
+          upiPanel.classList.toggle('hidden', val !== 'upi');
+          cardPanel.classList.toggle('hidden', val !== 'card');
+        });
+      });
+
+      // Place order (demo handler)
+      const placeBtn = document.getElementById('place-order');
+      const statusEl = document.getElementById('order-status');
+      placeBtn.addEventListener('click', () => {
+        // Basic validation for shipping fields
+        const requiredIds = ['fullName','phone','addressLine1','city','state','pincode'];
+        const missing = requiredIds.filter(id => !document.getElementById(id).value.trim());
+        if (missing.length) {
+          statusEl.textContent = 'Please fill all required shipping fields.';
+          statusEl.className = 'order-status error';
+          return;
+        }
+
+        const pm = document.querySelector('input[name="paymentMethod"]:checked').value;
+        if (pm === 'upi' && !document.getElementById('upiId').value.trim()) {
+          statusEl.textContent = 'Please enter a valid UPI ID.';
+          statusEl.className = 'order-status error';
+          return;
+        }
+        if (pm === 'card' && (!document.getElementById('cardNumber').value.trim() || !document.getElementById('cvv').value.trim())) {
+          statusEl.textContent = 'Please enter card number and CVV.';
+          statusEl.className = 'order-status error';
+          return;
+        }
+
+        statusEl.textContent = 'Order placed! (Demo) — This will be replaced with real payment + backend order creation.';
+        statusEl.className = 'order-status success';
+
+        // Example: clear cart after order in demo
+        // localStorage.removeItem('ws_cart');
+      });
+    });
+  </script>
+</body>
+</html>
+``
