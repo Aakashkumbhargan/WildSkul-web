@@ -2,7 +2,6 @@
 {% block title %}WildSkull — Luggage & Bags Store{% endblock %}
 
 {% block content %}
-
 <section class="hero container" aria-labelledby="hero-title">
   <div class="hero-wrap">
     <div class="hero-card">
@@ -14,7 +13,6 @@
         <a class="btn ghost" href="#categories">Browse Categories</a>
       </div>
     </div>
-
     <div class="hero-badge" aria-label="Seasonal offer">
       <div>
         <div class="badge-circle" aria-hidden="true"></div>
@@ -38,14 +36,16 @@
 <!-- Product Grid -->
 <section id="grid" class="container" aria-labelledby="featured-title">
   <h2 class="section-title" id="featured-title">Featured Products</h2>
-
   <div class="grid" role="list">
-    {% for p in products %} 
-    <!-- <a href="/checkout" target="_blank" class="product-link"> </a> -->
+    {% for p in products %}
     <article class="product-card" role="listitem" data-id="{{ p.id }}">
-      
-        
-      <img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.title }}" loading="lazy">
+      <img
+        src="{{ url_for('static', filename=p.image) }}"
+        alt="{{ p.title }}"
+        loading="lazy"
+        class="product-img"
+        title="Open product"
+      />
       <div class="product-body">
         <div class="category">{{ p.category }}</div>
         <h3 class="title">{{ p.title }}</h3>
@@ -57,17 +57,24 @@
         <p style="color:var(--muted); margin:.2rem 0 .6rem;">{{ p.desc }}</p>
       </div>
       <div class="actions">
-        <button class="btn secondary">Add to Wishlist</button>
-        <button class="btn add-to-cart" data-id="{{ p.id }}">Add to Cart</button>
+        <button class="btn secondary" type="button">Add to Wishlist</button>
+        <button class="btn add-to-cart" type="button" data-id="{{ p.id }}">Add to Cart</button>
       </div>
-
-    
-    </article> 
-    
+    </article>
     {% endfor %}
   </div>
-  <!-- <img src="{{ url_for('static', filename='assets/Le_Handbag_3.jpg') }}"
-     alt="Voyager 28” Hardcase Spinner" loading="lazy" /> -->
 </section>
 
+<!-- Click-to-open Product (new tab) -->
+<script>
+  document.addEventListener('click', function (e) {
+    const img = e.target.closest('.product-img');
+    if (!img) return;
+    const card = img.closest('.product-card');
+    const id = card?.dataset?.id || '';
+    if (!id) return;
+    const url = `/product/${encodeURIComponent(id)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  });
+</script>
 {% endblock %}

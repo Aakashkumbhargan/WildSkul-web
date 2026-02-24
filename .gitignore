@@ -1,0 +1,17 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+
+
+
+venv/
+.venv/
+
+instance/
+config.py
+config_local.py
+
+/static/assets/
+
+.env
+
+app_bkp.py
+templates/order_success.html

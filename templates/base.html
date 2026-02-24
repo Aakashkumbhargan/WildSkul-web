@@ -7,24 +7,24 @@
   <meta name="description" content="WildSkull: Neon-styled premium luggage, trunks, purses, laptop bags, and wallets." />
   <meta name="theme-color" content="#00e5ff"/>
 
-  <!-- Fonts (keep as-is; no Jinja needed) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 
   <!-- Icons & CSS -->
-  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='wildskull-mark.svg') }}">
-  <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='wildskull-app-icon.png') }}">
-  <link rel="apple-touch-icon" href="{{ url_for('static', filename='wildskull-app-icon.png') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='wildskull-mark.svg') }}"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='wildskull-app-icon.png') }}"/>
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='wildskull-app-icon.png') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+
   {% block head %}{% endblock %}
 </head>
 <body>
 <header>
   <div class="container nav" role="navigation" aria-label="Main">
     <a class="brand" href="{{ url_for('home') }}">
-      <img class="logo" src="{{ url_for('static', filename='../static/assets/Designer.png') }}"
-           alt="WildSkull logo">
+      <img class="logo" src="{{ url_for('static', filename='/icons/Designer.png') }}" alt="WildSkull logo"/>
       <span class="brand-text">WiLDSKULL</span>
     </a>
 
@@ -52,23 +52,30 @@
   <div class="container footer-grid">
     <div>
       <h4>WildSkull</h4>
-      <p>Premium carry goods with neon attitude—built for durability and style.</p>
+      <p>Premium carry goods with neon attitude built for durability and style.</p>
     </div>
+
     <div>
       <h4>Shop</h4>
-      <a href="#categories">Luggage & Carrying Bags</a><br/>
-      <a href="#categories">Trunks</a><br/>
-      <a href="#categories">Purses</a><br/>
-      <a href="#categories">Laptop Bags</a><br/>
-      <a href="#categories">Wallets</a>
+      <nav aria-label="Footer Shop">
+        <a href="#categories">Luggage &amp; Carrying Bags</a><br/>
+        <a href="#categories">Trunks</a><br/>
+        <a href="#categories">Purses</a><br/>
+        <a href="#categories">Laptop Bags</a><br/>
+        <a href="#categories">Wallets</a>
+      </nav>
     </div>
+
     <div>
       <h4>Support</h4>
-      <a href="#">Track Order</a><br/>
-      <a href="#">Returns</a><br/>
-      <a href="#">Warranty</a><br/>
-      <a href="#">FAQs</a>
+      <nav aria-label="Footer Support">
+        <a href="#">Track Order</a><br/>
+        <a href="#">Returns</a><br/>
+        <a href="#">Warranty</a><br/>
+        <a href="#">FAQs</a>
+      </nav>
     </div>
+
     <div>
       <h4>Contact</h4>
       <address style="font-style: normal;">
@@ -78,19 +85,20 @@
       </address>
     </div>
   </div>
+
   <div class="container copyright">
-    © <span id="year">{{ 2026 }}</span> WiLDSKULL. All rights reserved.
+    © <span id="year">2026</span> WiLDSKULL. All rights reserved.
   </div>
 </footer>
 
-<!-- Cart overlay + drawer (markup only; CSS in styles.css, JS in cart.js) -->
+<!-- Cart overlay + drawer -->
 <div id="cartOverlay" class="cart-overlay" aria-hidden="true"></div>
 <aside id="cartDrawer" class="cart-drawer" aria-hidden="true" aria-label="Shopping cart" role="dialog">
   <div class="cart-header">
     <h3>🛒 Your Cart</h3>
     <div>
-      <button id="clearCart" class="btn ghost" title="Clear cart">Clear</button>
-      <button id="closeCart" class="btn ghost" title="Close">✕</button>
+      <button id="clearCart" class="btn ghost" type="button" title="Clear cart">Clear</button>
+      <button id="closeCart" class="btn ghost" type="button" title="Close">✕</button>
     </div>
   </div>
   <div id="cartItems" class="cart-items">
@@ -102,15 +110,13 @@
       <strong id="cartSubtotal">₹0</strong>
     </div>
     <div class="cart-actions">
-      <button id="checkoutBtn" class="btn" style="flex:1">Checkout</button>
-      <button id="continueBtn" class="btn ghost" style="flex:1">Continue</button>
+      <a id="checkoutBtn" class="btn" style="flex:1" href="{{ url_for('checkout') }}">Checkout</a>
+      <button id="continueBtn" class="btn ghost" style="flex:1" type="button">Continue</button>
     </div>
     <div class="cart-note">Shipping & taxes calculated at checkout.</div>
   </div>
 </aside>
 
-<script src="{{ url_for('static', filename='../static/js/cart.js') }}"></script>
-<script src="{{ url_for('static', filename='../static/js/checkout.js') }}"></script>
-
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
 </body>
 </html>

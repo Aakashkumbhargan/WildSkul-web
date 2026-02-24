@@ -1,16 +1,14 @@
 from __future__ import annotations
-# from curses import window
-from flask import Flask, flash, json, redirect, render_template, jsonify, request, session, url_for
-from collections import defaultdict
 import os, json, requests
-from flask import current_app as app
-from paytmchecksum import PaytmChecksum
-
+from flask import (
+    Flask, render_template, jsonify, request, session,
+    redirect, url_for, flash
+)
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-change-me")  # set a strong key in prod
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-change-me")
 
-# ---- Demo product catalog (could be replaced with DB later) ----
+# --------- Demo product catalog ---------
 PRODUCTS = [
     {
         "id": "voyager-28",
@@ -109,7 +107,6 @@ PRODUCTS = [
         "desc": "Minimal profile, quick-pull slot, premium stitching."
     },
 ]
-
 CATEGORIES = sorted({p["category"] for p in PRODUCTS})
 
 def get_product(pid: str) -> dict | None:
@@ -117,18 +114,18 @@ def get_product(pid: str) -> dict | None:
 
 def init_cart():
     if "cart" not in session:
-        session["cart"] = {}  # {product_id: qty}
+        session["cart"] = {}
     return session["cart"]
 
 def cart_items_detail():
-    """Return detailed cart items + totals from session cart."""
+    """Return detailed cart items + totals from session cart (₹)."""
     cart = session.get("cart", {})
     items = []
     subtotal = 0
     count = 0
     for pid, qty in cart.items():
         prod = get_product(pid)
-        if not prod: 
+        if not prod:
             continue
         line_total = prod["price"] * qty
         subtotal += line_total
@@ -144,26 +141,123 @@ def cart_items_detail():
         })
     return {"items": items, "subtotal": subtotal, "count": count}
 
+# --------- (Optional) Paytm config & routes (kept above app.run) ---------
+PAYTM_MID = os.getenv("PAYTM_MID")
+PAYTM_KEY = os.getenv("PAYTM_MERCHANT_KEY")
+PAYTM_WEBSITE = os.getenv("PAYTM_WEBSITE", "WEBSTAGING")
+PAYTM_HOST = os.getenv("PAYTM_HOST", "https://securegw-stage.paytm.in")
+
+def cart_detail():
+    """Build totals in paise for Paytm; keep server-trust for pricing."""
+    cart = session.get("cart", {})
+    items, subtotal = [], 0
+    for pid, qty in cart.items():
+        prod = get_product(pid)
+        if not prod:
+            continue
+        q = max(int(qty), 1)
+        line = prod["price"] * 100 * q  # amount in paise
+        items.append({
+            "id": pid,
+            "title": prod["title"],
+            "qty": q,
+            "unit_paise": prod["price"] * 100,
+            "line_paise": line,
+        })
+        subtotal += line
+    shipping = 0 if subtotal >= 99900 else 9900
+    return {"items": items, "subtotal": subtotal, "shipping": shipping, "total": subtotal + shipping}
+
+@app.post("/paytm/initiate")
+def paytm_initiate():
+    """Initiate Paytm txn and return txnToken for CheckoutJS (when enabled)."""
+    try:
+        from paytmchecksum import PaytmChecksum
+    except Exception:
+        return jsonify({"error": "paytmchecksum not installed"}), 500
+
+    data = request.get_json(force=True)
+    order_id = data["orderId"]
+    amount = str(data["amount"])  # e.g., "1499.00"
+    cust_id = data.get("custId", "CUST001")
+
+    body = {
+        "requestType": "Payment",
+        "mid": PAYTM_MID,
+        "websiteName": PAYTM_WEBSITE,
+        "orderId": order_id,
+        "callbackUrl": url_for("paytm_callback", _external=True),
+        "txnAmount": {"value": amount, "currency": "INR"},
+        "userInfo": {"custId": cust_id}
+    }
+    signature = PaytmChecksum.generateSignature(json.dumps(body), PAYTM_KEY)
+    payload = {"body": body, "head": {"signature": signature}}
+    url = f"{PAYTM_HOST}/theia/api/v1/initiateTransaction?mid={PAYTM_MID}&orderId={order_id}"
+    resp = requests.post(url, json=payload, timeout=20)
+    js = resp.json()
+    if resp.ok and js.get("body", {}).get("txnToken"):
+        return jsonify({"txnToken": js["body"]["txnToken"]})
+    return jsonify({"error": js}), 400
+
+@app.route("/paytm/callback", methods=["POST"])
+def paytm_callback():
+    try:
+        from paytmchecksum import PaytmChecksum
+    except Exception:
+        flash("Payment verification unavailable (checksum lib missing).")
+        return redirect(url_for("checkout"))
+
+    form = request.form.to_dict()
+    checksum = form.pop("CHECKSUMHASH", "")
+    valid = PaytmChecksum.verifySignature(form, PAYTM_KEY, checksum)
+    order_id = form.get("ORDERID")
+    if not valid or not order_id:
+        flash("Payment validation failed.")
+        return redirect(url_for("checkout"))
+
+    status_url = f"{PAYTM_HOST}/v3/order/status"
+    body = {"mid": PAYTM_MID, "orderId": order_id}
+    head = {"signature": PaytmChecksum.generateSignature(json.dumps(body), PAYTM_KEY)}
+    status_resp = requests.post(status_url, json={"body": body, "head": head}, timeout=20).json()
+    result = (status_resp.get("body", {}).get("resultInfo")) or {}
+
+    if result.get("resultStatus") in ("TXN_SUCCESS", "SUCCESS"):
+        session["cart"] = {}
+        return redirect(url_for("order_success", order_no=order_id))
+    elif result.get("resultStatus") in ("PENDING",):
+        flash("Payment pending. We’ll notify once confirmed.")
+        return redirect(url_for("checkout"))
+    else:
+        flash("Payment failed or cancelled.")
+        return redirect(url_for("checkout"))
+
 # ----------------- Pages -----------------
 @app.route("/")
 def home():
-    # Pre-resolve image URLs for server-rendered page
-    products = []
-    for p in PRODUCTS:
+    return render_template("index.html", products=PRODUCTS, categories=CATEGORIES)
+
+@app.route("/product")
+def product_fallback():
+    """Allows quick testing via query string: /product?title=&price=&img=..."""
+    return render_template("product.html", product=None)
+
+@app.route("/product/<pid>")
+def product_view(pid):
+    p = get_product(pid)
+    if p:
         p2 = dict(p)
         p2["image_url"] = url_for("static", filename=p["image"])
-        products.append(p2)
-    return render_template("index.html", products=products, categories=CATEGORIES)
+        return render_template("product.html", product=p2)
+    return render_template("product.html", product=None), 404
 
 @app.route("/checkout")
 def checkout():
-    pid = request.args.get("id")
-    # If pid is present, you can pre-select that item or show cart contents.
-    # detail = cart_detail()  # your existing function
-    return render_template("checkout.html", selected_id=pid)
+    return render_template("checkout.html")
 
-
- 
+@app.get("/order/success")
+def order_success():
+    order_no = request.args.get("order_no", "WS-DEMO")
+    return render_template("order_success.html", order_no=order_no)
 
 # ----------------- APIs -----------------
 @app.get("/api/categories")
@@ -172,7 +266,6 @@ def api_categories():
 
 @app.get("/api/products")
 def api_products():
-    # Optional filters via query params
     q = (request.args.get("q") or "").lower()
     category = request.args.get("category")
     sort = request.args.get("sort", "popular")
@@ -203,7 +296,6 @@ def api_products():
     elif sort == "newest":
         data.sort(key=lambda p: p["date"], reverse=True)
 
-    # Resolve images to /static path for API users
     for p in data:
         p["image_url"] = url_for("static", filename=p["image"])
     return jsonify(data)
@@ -256,93 +348,4 @@ def api_cart_clear():
     return jsonify(cart_items_detail())
 
 if __name__ == "__main__":
-    # Dev-friendly
     app.run(debug=True)
-
-
-
-
-# Payment checkout
-
-PAYTM_MID = os.getenv("PAYTM_MID")
-PAYTM_KEY = os.getenv("PAYTM_MERCHANT_KEY")
-PAYTM_WEBSITE = os.getenv("PAYTM_WEBSITE", "WEBSTAGING")
-PAYTM_HOST = os.getenv("PAYTM_HOST", "https://securegw-stage.paytm.in")  # prod host differs
-
-def cart_detail():
-    cart = session.get("cart", {})
-    items, subtotal = [], 0
-    for pid, qty in cart.items():
-        prod = get_product(pid)
-        if not prod: continue
-        q = max(int(qty), 1)
-        line = prod["price"] * 100 * q  # paise
-        items.append({"id": pid, "title": prod["title"], "qty": q, "unit_paise": prod["price"]*100, "line_paise": line})
-        subtotal += line
-    shipping = 0 if subtotal >= 99900 else 9900
-    return {"items": items, "subtotal": subtotal, "shipping": shipping, "total": subtotal+shipping}
-
-
-# 2) Initiate transaction route → returns txnToken
-
-@app.post("/paytm/initiate")
-def paytm_initiate():
-    data = request.get_json(force=True)
-    order_id = data["orderId"]
-    amount = str(data["amount"])    # e.g., "1499.00"
-    cust_id = data.get("custId", "CUST001")
-
-    body = {
-        "requestType": "Payment",
-        "mid": PAYTM_MID,
-        "websiteName": PAYTM_WEBSITE,
-        "orderId": order_id,
-        "callbackUrl": url_for("paytm_callback", _external=True),
-        "txnAmount": {"value": amount, "currency": "INR"},
-        "userInfo": {"custId": cust_id}
-    }
-    signature = PaytmChecksum.generateSignature(json.dumps(body), PAYTM_KEY)
-    payload = {"body": body, "head": {"signature": signature}}
-
-    url = f"{PAYTM_HOST}/theia/api/v1/initiateTransaction?mid={PAYTM_MID}&orderId={order_id}"
-    resp = requests.post(url, json=payload, timeout=20)
-    js = resp.json()
-
-    # Expect: {"body":{"txnToken":"..."}, "head":{...}}
-    if resp.ok and js.get("body", {}).get("txnToken"):
-        return jsonify({"txnToken": js["body"]["txnToken"]})
-    return jsonify({"error": js}), 400
-
-
-
-@app.route("/paytm/callback", methods=["POST"])
-def paytm_callback():
-    # Paytm posts fields like: ORDERID, TXNAMOUNT, STATUS, CHECKSUMHASH, etc.
-    form = request.form.to_dict()
-    checksum = form.pop("CHECKSUMHASH", "")
-    valid = PaytmChecksum.verifySignature(form, PAYTM_KEY, checksum)
-
-    order_id = form.get("ORDERID")
-    if not valid or not order_id:
-        flash("Payment validation failed.")
-        return redirect(url_for("checkout"))
-
-    # Recommended: call Order Status API (server-to-server) before confirming
-    status_url = f"{PAYTM_HOST}/v3/order/status"
-    body = {"mid": PAYTM_MID, "orderId": order_id}
-    head = {"signature": PaytmChecksum.generateSignature(json.dumps(body), PAYTM_KEY)}
-    status_resp = requests.post(status_url, json={"body": body, "head": head}, timeout=20).json()
-    # status_resp.body.resultInfo.resultStatus ∈ { "SUCCESS", "FAILURE", "PENDING" }
-    # (naming can vary across doc pages; always check resultInfo) [3](https://www.paytmpayments.com/docs/jscheckout-verify-payment/)
-
-    result = (status_resp.get("body", {}).get("resultInfo") or {})
-    if result.get("resultStatus") in ("TXN_SUCCESS", "SUCCESS"):
-        # mark order as paid in DB, clear cart, redirect success
-        session["cart"] = {}
-        return redirect(url_for("order_success", order_no=order_id))
-    elif result.get("resultStatus") in ("PENDING",):
-        flash("Payment pending. We’ll notify once confirmed.")
-        return redirect(url_for("checkout"))
-    else:
-        flash("Payment failed or cancelled.")
-        return redirect(url_for("checkout"))

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}{{ product.title if product else "Product" }} — WildSkull{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <nav class="breadcrumbs">
+    <a href="{{ url_for('home') }}">Home</a> › <span id="bc-cat">{{ product.category if product else "Product" }}</span>
+  </nav>
+
+  <section class="grid">
+    <!-- Left: Gallery -->
+    <div class="gallery">
+      <div class="thumbs" id="thumbs"></div>
+      <div class="hero">
+        <img id="heroImg"
+             src="{{ product.image_url if product else (request.args.get('img') or url_for('static', filename='assets/Designer.png')) }}"
+             alt="{{ product.title if product else 'Product image' }}">
+      </div>
+    </div>
+
+    <!-- Right: Details -->
+    <aside class="panel">
+      <p class="brand">WildSkull • Premium Series</p>
+      <h1 class="title" id="title">{{ product.title if product else request.args.get('title','WildSkull Gear') }}</h1>
+
+      {% set rating = (product.rating if product and product.rating is not none else (request.args.get('rating')|float if request.args.get('rating') else 4.4)) %}
+      {% set rounded = rating|round(0, 'common')|int %}
+      <div class="rating">
+        <span id="stars">{% for _ in range(rounded) %}★{% endfor %}{% for _ in range(5-rounded) %}☆{% endfor %}</span>
+        <span id="ratingText" style="color:var(--muted)">{{ '%.1f'|format(rating) }}</span>
+        <span class="sep" style="color:var(--muted)">•</span>
+        <span class="muted" id="reviews">132 reviews</span>
+      </div>
+
+      {% set price = (product.price if product and product.price is not none else (request.args.get('price')|int if request.args.get('price') else 2499)) %}
+      {% set mrp = (price * 1.25)|round(0, 'ceil')|int %}
+      {% set save = mrp - price %}
+      <div class="price-row">
+        <div class="price" id="price">₹{{ "{:,}".format(price) }}</div>
+        <div class="mrp" id="mrp" aria-hidden="true">₹{{ "{:,}".format(mrp) }}</div>
+        {% if save > 0 %}<div class="save" id="save">Save ₹{{ "{:,}".format(save) }}</div>{% endif %}
+      </div>
+
+      <div class="h">Color</div>
+      <div class="chips" id="colorChips">
+        <button class="chip" aria-pressed="true" data-color="Black" type="button">Black</button>
+        <button class="chip" data-color="Navy" type="button">Navy</button>
+        <button class="chip" data-color="Teal" type="button">Teal</button>
+      </div>
+
+      <div class="h">Size</div>
+      <div class="chips" id="sizeChips">
+        <button class="chip" aria-pressed="true" data-size="M" type="button">M</button>
+        <button class="chip" data-size="L" type="button">L</button>
+        <button class="chip" data-size="XL" type="button">XL</button>
+      </div>
+
+      <div class="qty-row">
+        <span class="muted">Quantity</span>
+        <div class="qty">
+          <button id="dec" type="button">−</button>
+          <input id="qty" type="number" min="1" value="1" inputmode="numeric">
+          <button id="inc" type="button">+</button>
+        </div>
+      </div>
+
+      <div class="cta">
+        <button class="btn" id="addToCart" type="button">Add to Cart</button>
+        <a class="btn ghost" id="buyNow" href="{{ url_for('checkout') }}">Buy Now</a>
+      </div>
+
+      <p class="meta">• Free shipping over ₹999 • 7‑day returns • Secure payments (UPI/Cards/Netbanking)</p>
+
+      <div class="details">
+        <details class="detail" open>
+          <summary>Description</summary>
+          <div class="muted" style="margin-top:.4rem">
+            {{ product.desc if product and product.desc else "Durable materials, modern design, perfect for travel or commute." }}
+          </div>
+        </details>
+        <details class="detail">
+          <summary>Specifications</summary>
+          <ul class="muted" style="margin:.4rem 0 0 1rem; line-height:1.6">
+            <li>Material: Polycarbonate / PU</li>
+            <li>Capacity: 28L</li>
+            <li>Features: Anti‑theft pocket, water‑repellent finish</li>
+            <li>Warranty: 12 months</li>
+          </ul>
+        </details>
+        <details class="detail">
+          <summary>Shipping & Returns</summary>
+          <p class="muted" style="margin:.4rem 0 0">
+            Ships in 24–48 hours. 7‑day return window (unused & tags intact).
+          </p>
+        </details>
+      </div>
+    </aside>
+  </section>
+</div>
+
+<!-- Sticky bottom (mobile) -->
+<div class="sticky-bar">
+  <div class="row wrap" style="max-width:1100px;">
+    <div style="display:flex; flex-direction:column">
+      <strong id="stickyTitle" style="font-size:.95rem">{{ product.title if product else "Product" }}</strong>
+      <span id="stickyPrice" class="muted">₹{{ "{:,}".format(price) }}</span>
+    </div>
+    <button class="btn" id="stickyBuy" type="button">Add to Cart</button>
+  </div>
+</div>
+
+<script>
+  // Build simple thumbs from hero URL
+  (function(){
+    const hero = document.getElementById('heroImg');
+    const thumbs = document.getElementById('thumbs');
+    const u = hero?.getAttribute('src');
+    if(!u || !thumbs) return;
+    const vars = [u, u + '?sat=110', u + '?hue=15', u + '?hue=-15'];
+    vars.forEach((src,i)=>{
+      const d = document.createElement('div'); d.className='thumb';
+      const im = new Image(); im.src = src; im.alt = 'Thumbnail ' + (i+1);
+      im.style.width='100%'; im.style.height='100%'; im.style.objectFit='cover';
+      d.appendChild(im);
+      d.addEventListener('click', ()=> hero.src = src);
+      thumbs.appendChild(d);
+    });
+  })();
+
+  // Chips
+  document.querySelectorAll('#colorChips .chip, #sizeChips .chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const group = chip.parentElement;
+      group.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+      chip.setAttribute('aria-pressed','true');
+    });
+  });
+
+  // Qty
+  const qtyInput = document.getElementById('qty');
+  document.getElementById('dec')?.addEventListener('click', ()=>{ qtyInput.value = Math.max(1, (+qtyInput.value||1)-1); });
+  document.getElementById('inc')?.addEventListener('click', ()=>{ qtyInput.value = Math.max(1, (+qtyInput.value||1)+1); });
+
+  function addToCartLS(){
+    // client-only demo; cart.js handles server cart in other contexts
+    const id = "{{ product.id if product else (request.args.get('id') or '') }}";
+    const title = document.getElementById('title')?.textContent?.trim() || 'Product';
+    const priceN = {{ price }};
+    const img = document.getElementById('heroImg')?.getAttribute('src') || '';
+    const color = document.querySelector('#colorChips .chip[aria-pressed="true"]')?.dataset.color || '';
+    const size  = document.querySelector('#sizeChips .chip[aria-pressed="true"]')?.dataset.size  || '';
+    const qty   = Math.max(1, +qtyInput.value || 1);
+
+    const item = { id, name: title, price: priceN, img, color, size, qty };
+    const cart = JSON.parse(localStorage.getItem('ws_cart')||'[]');
+    const key = [item.id,item.price,item.color,item.size].join('|');
+    const found = cart.find(c => [c.id,c.price,c.color,c.size].join('|') === key);
+    if(found) found.qty += item.qty; else cart.push(item);
+    localStorage.setItem('ws_cart', JSON.stringify(cart));
+    alert('Added to cart');
+}
+  document.getElementById('addToCart')?.addEventListener('click', addToCartLS);
+  document.getElementById('stickyBuy')?.addEventListener('click', addToCartLS);
+</script>
+{% endblock %}
