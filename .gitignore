@@ -9,5 +9,7 @@ config_local.py
 
 .env
 
+__pycache__
+
 app_bkp.py
 templates/order_success.html
