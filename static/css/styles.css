@@ -82,11 +82,11 @@ header{
   min-height: 240px; border:1px solid var(--border); border-radius: var(--radius-lg);
   display:grid; place-items:center; text-align:center; padding:1rem; background: rgba(12,17,24,.35); box-shadow: var(--shadow);
 }
-.badge-circle{
+/* .badge-circle{
   width:110px;height:110px;border-radius:999px;margin-bottom:.6rem;
   background: radial-gradient(circle at 35% 35%, #e8fff4,#7bffd2,#00ff88,#007a4d);
   border:6px solid rgba(255,255,255,.12);
-}
+} */
 
 /* Chips */
 .chips{ display:flex; gap:.6rem; flex-wrap:wrap; margin:1.35rem 0 .75rem; }
@@ -208,3 +208,56 @@ footer a:hover { color: var(--text); text-decoration: underline; }
     justify-content: center;
     margin-top: 7px;
 }
+
+
+
+.swiper {
+      width: 100%;
+      height: 100%;
+    }
+
+    .swiper-slide {
+      text-align: center;
+      font-size: 18px;
+      background: #444;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .swiper-slide img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .autoplay-progress {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      z-index: 10;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: var(--swiper-theme-color);
+    }
+
+    .autoplay-progress svg {
+      --progress: 0;
+      position: absolute;
+      left: 0;
+      top: 0px;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      stroke-width: 4px;
+      stroke: var(--swiper-theme-color);
+      fill: none;
+      stroke-dashoffset: calc(125.6px * (1 - var(--progress)));
+      stroke-dasharray: 125.6;
+      transform: rotate(-90deg);
+    }
