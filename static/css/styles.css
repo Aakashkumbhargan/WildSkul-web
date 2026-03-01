@@ -152,7 +152,8 @@ body.cart-open{ overflow:hidden; }
 .breadcrumbs{ color:var(--muted); font-size:.92rem; margin:.25rem 0 1rem; }
 .breadcrumbs a{ color:var(--muted); }
 .gallery{ display:grid; grid-template-columns:90px 1fr; gap:.75rem; }
-@media (max-width: 720px){ .gallery{ grid-template-columns: 1fr; } }
+/* @media (max-width: 720px){ .gallery{ grid-template-columns: 1fr; } } */
+@media (max-width: 720px){ .nav{ grid-template-columns: none; } }
 .thumbs{ display:flex; flex-direction:column; gap:.6rem; }
 .thumb{ background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; aspect-ratio:1/1; cursor:pointer; transition:.12s }
 .thumb:hover{ transform:translateY(-2px); filter:brightness(1.08) }
@@ -223,6 +224,7 @@ footer a:hover { color: var(--text); text-decoration: underline; }
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 22rem;
     }
 
     .swiper-slide img {
@@ -261,3 +263,95 @@ footer a:hover { color: var(--text); text-decoration: underline; }
       stroke-dasharray: 125.6;
       transform: rotate(-90deg);
     }
+
+
+    /* ========== Responsive Hamburger Nav ========== */
+
+/* Keep your grid but make it brand | (toggle) | panel */
+.nav {
+  display: grid;
+  grid-template-columns: auto 1fr; /* brand | rest (toggle floats right) */
+  align-items: center;
+  gap: .75rem;
+  height: 84px;
+}
+
+/* Hamburger button */
+.nav-toggle{
+  margin-left: auto;
+  width: 46px; height: 38px;
+  border: 0; background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  position: relative; z-index: 60; /* above panel */
+}
+.nav-toggle .bar{
+  position: absolute; width: 24px; height: 2.5px; background: #fff;
+  left: 50%; transform: translateX(-50%);
+  transition: transform .35s ease, opacity .25s ease, top .35s ease;
+}
+.nav-toggle .bar-1{ top: 13px; }
+.nav-toggle .bar-2{ top: 18px; }
+.nav-toggle .bar-3{ top: 23px; }
+.nav-toggle.is-active .bar-1{ top: 18px; transform: translateX(-50%) rotate(45deg); }
+.nav-toggle.is-active .bar-2{ opacity: 0; }
+.nav-toggle.is-active .bar-3{ top: 18px; transform: translateX(-50%) rotate(-45deg); }
+
+/* Mobile panel (hidden by default; animates open) */
+.nav-panel{
+  position: fixed;
+  top: 84px; left: 0; right: 0;
+  background: rgba(12,17,24,.85);
+  backdrop-filter: blur(14px) saturate(130%);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  transform-origin: top right;
+  transform: scale(.98) translateY(-10px);
+  opacity: 0; visibility: hidden;
+  transition: transform .25s ease, opacity .2s ease, visibility .2s ease;
+  z-index: 55;
+}
+.nav-panel[data-state="open"]{
+  transform: scale(1) translateY(0);
+  opacity: 1; visibility: visible;
+}
+
+/* Stack links & actions inside panel for mobile */
+.nav-panel .nav-links{
+  display: flex; flex-direction: row; gap: .5rem;
+  margin-bottom: .6rem;
+}
+.nav-panel .nav-links a{
+  padding: .65rem .75rem; border-radius: 10px;
+  color: var(--muted); border: 1px solid transparent;
+}
+.nav-panel .nav-links a:hover,
+.nav-panel .nav-links a[aria-current="page"]{
+  color: var(--text);
+  background: rgba(255,255,255,.07);
+  border-color: var(--border);
+}
+.nav-panel .nav-actions{ display: flex; gap: .5rem; justify-content: center; }
+
+/* No body scroll when menu open */
+body.menu-open{ overflow: hidden; }
+
+/* Desktop ≥ 960px: inline layout, hide toggle */
+@media (min-width: 960px){
+  .nav { grid-template-columns: auto 1fr auto; } /* brand | links | actions */
+  .nav-toggle{ display: none; }
+
+  /* Make panel behave like it's not there – children flow into .nav grid */
+  .nav-panel{
+    position: static; padding: 0; background: transparent; border: 0; box-shadow: none;
+    transform: none; opacity: 1; visibility: visible;
+    display: contents; /* lets children participate directly in parent grid */
+  }
+
+  /* Your existing desktop rules still apply */
+  .nav-links{ display: flex; gap: 1rem; }
+  .nav-actions{ display: flex; justify-content: flex-end; gap: .6rem; }
+}
+
+
+@media (max-width: 720px){ .panel{ width: 20rem; height: 35rem;} .sticky-bar {display: none;}  .title{font-size: 1.2rem;}  }

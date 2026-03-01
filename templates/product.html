@@ -161,5 +161,57 @@
 }
   document.getElementById('addToCart')?.addEventListener('click', addToCartLS);
   document.getElementById('stickyBuy')?.addEventListener('click', addToCartLS);
+
+
+(() => {
+      const toggle = document.getElementById('navToggle');
+      const panel = document.getElementById('navPanel');
+
+      const openMenu = () => {
+        panel.setAttribute('data-state', 'open');
+        toggle.classList.add('is-active');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Close menu');
+        document.body.classList.add('menu-open');
+        document.addEventListener('keydown', onKey, { passive: true });
+        document.addEventListener('click', onClickOutside, true);
+      };
+
+      const closeMenu = () => {
+        panel.setAttribute('data-state', 'closed');
+        toggle.classList.remove('is-active');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open menu');
+        document.body.classList.remove('menu-open');
+        document.removeEventListener('keydown', onKey, { passive: true });
+        document.removeEventListener('click', onClickOutside, true);
+      };
+
+      const onKey = (e) => { if (e.key === 'Escape') closeMenu(); };
+      const onClickOutside = (e) => {
+        if (!panel.contains(e.target) && !toggle.contains(e.target)) closeMenu();
+      };
+
+      toggle.addEventListener('click', () => {
+        const open = panel.getAttribute('data-state') === 'open';
+        open ? closeMenu() : openMenu();
+      });
+
+      // Reset states on resize to desktop
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 960) {
+          // force desktop state
+          panel.setAttribute('data-state', 'open');
+          toggle.classList.remove('is-active');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.setAttribute('aria-label', 'Open menu');
+          document.body.classList.remove('menu-open');
+        } else if (panel.getAttribute('data-state') !== 'closed') {
+          // ensure closed when returning to mobile
+          panel.setAttribute('data-state', 'closed');
+        }
+      });
+    })();
+
 </script>
 {% endblock %}

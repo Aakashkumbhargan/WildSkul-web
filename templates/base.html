@@ -1,124 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}WildSkull — Luggage & Bags Store{% endblock %}</title>
-  <meta name="description" content="WildSkull: Neon-styled premium luggage, trunks, purses, laptop bags, and wallets." />
-  <meta name="theme-color" content="#00e5ff"/>
+  <meta name="description"
+    content="WildSkull: Neon-styled premium luggage, trunks, purses, laptop bags, and wallets." />
+  <meta name="theme-color" content="#00e5ff" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Icons & CSS -->
-  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='wildskull-mark.svg') }}"/>
-  <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='wildskull-app-icon.png') }}"/>
-  <link rel="apple-touch-icon" href="{{ url_for('static', filename='wildskull-app-icon.png') }}"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='/icons/Designer.png') }}" />
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='wildskull-app-icon.png') }}" />
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='wildskull-app-icon.png') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
 
   {% block head %}{% endblock %}
 </head>
+
 <body>
-<header>
-  <div class="container nav" role="navigation" aria-label="Main">
-    <a class="brand" href="{{ url_for('home') }}">
-      <img class="logo" src="{{ url_for('static', filename='/icons/Designer.png') }}" alt="WildSkull logo"/>
-      <span class="brand-text">WiLDSKULL</span>
-    </a>
 
-    <nav class="nav-links" aria-label="Primary">
-      <a href="{{ url_for('home') }}" aria-current="page">Home</a>
-      <a href="#categories">Categories</a>
-      <a href="#deals">Deals</a>
-      <a href="#support">Support</a>
-    </nav>
+  <header>
+    <div class="container nav" role="navigation" aria-label="Main">
+      <!-- Brand -->
+      <a class="brand" href="{{ url_for('home') }}">
+        <!-- FIXED: removed leading slash in filename -->
+        <img class="logo" src="{{ url_for('static', filename='icons/Designer.png') }}" alt="WildSkull logo" />
+        <span class="brand-text">WiLDSKULL</span>
+      </a>
 
-    <div class="nav-actions">
-      <button class="btn ghost" aria-label="View wishlist">♡ Wishlist</button>
-      <button id="cartBtn" class="btn" aria-label="View cart">
-        🛒 Cart <span id="cartCount" class="cart-badge">0</span>
+      <!-- Hamburger -->
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-controls="navPanel" aria-expanded="false">
+        <span class="bar bar-1"></span>
+        <span class="bar bar-2"></span>
+        <span class="bar bar-3"></span>
       </button>
-    </div>
-  </div>
-</header>
 
-<main>
-  {% block content %}{% endblock %}
-</main>
+      <!-- Mobile panel (contains your links + actions) -->
+      <div id="navPanel" class="nav-panel" data-state="closed">
+        <nav class="nav-links" aria-label="Primary">
+          <a href="{{ url_for('home') }}" aria-current="page">Home</a>
+          <a href="#categories">Categories</a>
+          <a href="#deals">Deals</a>
+          <a href="#support">Support</a>
+        </nav>
 
-<footer role="contentinfo">
-  <div class="container footer-grid">
-    <div>
-      <h4>WildSkull</h4>
-      <p>Premium carry goods with neon attitude built for durability and style.</p>
+        <div class="nav-actions">
+          <button class="btn ghost" aria-label="View wishlist">♡ Wishlist</button>
+          <button id="cartBtn" class="btn" aria-label="View cart">
+            🛒 Cart <span id="cartCount" class="cart-badge">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer role="contentinfo">
+    <div class="container footer-grid">
+      <div>
+        <h4>WildSkull</h4>
+        <p>Premium carry goods with neon attitude built for durability and style.</p>
+      </div>
+
+      <div>
+        <h4>Shop</h4>
+        <nav aria-label="Footer Shop">
+          <a href="#categories">Luggage &amp; Carrying Bags</a><br />
+          <a href="#categories">Trunks</a><br />
+          <a href="#categories">Purses</a><br />
+          <a href="#categories">Laptop Bags</a><br />
+          <a href="#categories">Wallets</a>
+        </nav>
+      </div>
+
+      <div>
+        <h4>Support</h4>
+        <nav aria-label="Footer Support">
+          <a href="#">Track Order</a><br />
+          <a href="#">Returns</a><br />
+          <a href="#">Warranty</a><br />
+          <a href="#">FAQs</a>
+        </nav>
+      </div>
+
+      <div>
+        <h4>Contact</h4>
+        <address style="font-style: normal;">
+          support@wildskull.in<br />
+          +91-98765-43210<br />
+          Mumbai, Maharashtra
+        </address>
+      </div>
     </div>
 
-    <div>
-      <h4>Shop</h4>
-      <nav aria-label="Footer Shop">
-        <a href="#categories">Luggage &amp; Carrying Bags</a><br/>
-        <a href="#categories">Trunks</a><br/>
-        <a href="#categories">Purses</a><br/>
-        <a href="#categories">Laptop Bags</a><br/>
-        <a href="#categories">Wallets</a>
-      </nav>
+    <div class="container copyright">
+      © <span id="year">2026</span> WiLDSKULL. All rights reserved.
     </div>
+  </footer>
 
-    <div>
-      <h4>Support</h4>
-      <nav aria-label="Footer Support">
-        <a href="#">Track Order</a><br/>
-        <a href="#">Returns</a><br/>
-        <a href="#">Warranty</a><br/>
-        <a href="#">FAQs</a>
-      </nav>
+  <!-- Cart overlay + drawer -->
+  <div id="cartOverlay" class="cart-overlay" aria-hidden="true"></div>
+  <aside id="cartDrawer" class="cart-drawer" aria-hidden="true" aria-label="Shopping cart" role="dialog">
+    <div class="cart-header">
+      <h3>🛒 Your Cart</h3>
+      <div>
+        <button id="clearCart" class="btn ghost" type="button" title="Clear cart">Clear</button>
+        <button id="closeCart" class="btn ghost" type="button" title="Close">✕</button>
+      </div>
     </div>
+    <div id="cartItems" class="cart-items">
+      <div class="cart-empty">Your cart is empty.</div>
+    </div>
+    <div class="cart-footer">
+      <div class="totals">
+        <strong>Subtotal</strong>
+        <strong id="cartSubtotal">₹0</strong>
+      </div>
+      <div class="cart-actions">
+        <a id="checkoutBtn" class="btn" style="flex:1" href="{{ url_for('checkout') }}">Checkout</a>
+        <button id="continueBtn" class="btn ghost" style="flex:1" type="button">Continue</button>
+      </div>
+      <div class="cart-note">Shipping & taxes calculated at checkout.</div>
+    </div>
+  </aside>
 
-    <div>
-      <h4>Contact</h4>
-      <address style="font-style: normal;">
-        support@wildskull.in<br/>
-        +91-98765-43210<br/>
-        Mumbai, Maharashtra
-      </address>
-    </div>
-  </div>
+  <!-- Your existing JS -->
+  <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
 
-  <div class="container copyright">
-    © <span id="year">2026</span> WiLDSKULL. All rights reserved.
-  </div>
-</footer>
+  <!-- Tiny nav controller (hamburger + panel) -->
+  <script>
+    (() => {
+      const toggle = document.getElementById('navToggle');
+      const panel = document.getElementById('navPanel');
 
-<!-- Cart overlay + drawer -->
-<div id="cartOverlay" class="cart-overlay" aria-hidden="true"></div>
-<aside id="cartDrawer" class="cart-drawer" aria-hidden="true" aria-label="Shopping cart" role="dialog">
-  <div class="cart-header">
-    <h3>🛒 Your Cart</h3>
-    <div>
-      <button id="clearCart" class="btn ghost" type="button" title="Clear cart">Clear</button>
-      <button id="closeCart" class="btn ghost" type="button" title="Close">✕</button>
-    </div>
-  </div>
-  <div id="cartItems" class="cart-items">
-    <div class="cart-empty">Your cart is empty.</div>
-  </div>
-  <div class="cart-footer">
-    <div class="totals">
-      <strong>Subtotal</strong>
-      <strong id="cartSubtotal">₹0</strong>
-    </div>
-    <div class="cart-actions">
-      <a id="checkoutBtn" class="btn" style="flex:1" href="{{ url_for('checkout') }}">Checkout</a>
-      <button id="continueBtn" class="btn ghost" style="flex:1" type="button">Continue</button>
-    </div>
-    <div class="cart-note">Shipping & taxes calculated at checkout.</div>
-  </div>
-</aside>
-  
+      if (!toggle || !panel) return;
 
-<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+      const openMenu = () => {
+        panel.setAttribute('data-state', 'open');
+        toggle.classList.add('is-active');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Close menu');
+        document.body.classList.add('menu-open');
+        document.addEventListener('keydown', onKey, { passive: true });
+        document.addEventListener('click', onClickOutside, true);
+      };
+
+      const closeMenu = () => {
+        panel.setAttribute('data-state', 'closed');
+        toggle.classList.remove('is-active');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open menu');
+        document.body.classList.remove('menu-open');
+        document.removeEventListener('keydown', onKey, { passive: true });
+        document.removeEventListener('click', onClickOutside, true);
+      };
+
+      const onKey = (e) => { if (e.key === 'Escape') closeMenu(); };
+      const onClickOutside = (e) => {
+        const inside = panel.contains(e.target) || toggle.contains(e.target);
+        if (!inside) closeMenu();
+      };
+
+      toggle.addEventListener('click', () => {
+        const isOpen = panel.getAttribute('data-state') === 'open';
+        isOpen ? closeMenu() : openMenu();
+      });
+
+      // Ensure good state when resizing to/from desktop
+      const DESKTOP = 960;
+      const onResize = () => {
+        if (window.innerWidth >= DESKTOP) {
+          // desktop: panel is always visible via CSS; ensure no locked scroll
+          document.body.classList.remove('menu-open');
+          panel.setAttribute('data-state', 'open');
+          toggle.classList.remove('is-active');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.setAttribute('aria-label', 'Open menu');
+        } else {
+          // mobile: keep closed by default
+          panel.setAttribute('data-state', 'closed');
+        }
+      };
+      window.addEventListener('resize', onResize);
+      // initialize once
+      onResize();
+    })();
+  </script>
+
+  <script>
+    (() => {
+      const toggle = document.getElementById('navToggle');
+      const panel = document.getElementById('navPanel');
+
+      const openMenu = () => {
+        panel.setAttribute('data-state', 'open');
+        toggle.classList.add('is-active');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Close menu');
+        document.body.classList.add('menu-open');
+        document.addEventListener('keydown', onKey, { passive: true });
+        document.addEventListener('click', onClickOutside, true);
+      };
+
+      const closeMenu = () => {
+        panel.setAttribute('data-state', 'closed');
+        toggle.classList.remove('is-active');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open menu');
+        document.body.classList.remove('menu-open');
+        document.removeEventListener('keydown', onKey, { passive: true });
+        document.removeEventListener('click', onClickOutside, true);
+      };
+
+      const onKey = (e) => { if (e.key === 'Escape') closeMenu(); };
+      const onClickOutside = (e) => {
+        if (!panel.contains(e.target) && !toggle.contains(e.target)) closeMenu();
+      };
+
+      toggle.addEventListener('click', () => {
+        const open = panel.getAttribute('data-state') === 'open';
+        open ? closeMenu() : openMenu();
+      });
+
+      // Reset states on resize to desktop
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 960) {
+          // force desktop state
+          panel.setAttribute('data-state', 'open');
+          toggle.classList.remove('is-active');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.setAttribute('aria-label', 'Open menu');
+          document.body.classList.remove('menu-open');
+        } else if (panel.getAttribute('data-state') !== 'closed') {
+          // ensure closed when returning to mobile
+          panel.setAttribute('data-state', 'closed');
+        }
+      });
+    })();
+  </script>
 </body>
+
 </html>

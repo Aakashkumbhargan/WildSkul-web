@@ -15,37 +15,54 @@
     </div>
     <div class="hero-badge" aria-label="Seasonal offer">
       <!-- <div> -->
-        <!-- <div class="badge-circle" aria-hidden="true"></div>
+      <!-- <div class="badge-circle" aria-hidden="true"></div>
         <p style="margin:.6rem 0 0;"><strong>Neon Fest</strong></p>
         <small>Up to 40% off on select luggage</small>
       </div> -->
-       <div class="swiper mySwiper">
-          <div class="swiper-wrapper">
-            <div class="swiper-slide">Slide 1</div>
-            <div class="swiper-slide">Slide 2</div>
-            <div class="swiper-slide">Slide 3</div>
-            <div class="swiper-slide">Slide 4</div>
-            <div class="swiper-slide">Slide 5</div>
-            <div class="swiper-slide">Slide 6</div>
-            <div class="swiper-slide">Slide 7</div>
-            <div class="swiper-slide">Slide 8</div>
-            <div class="swiper-slide">Slide 9</div>
+
+      <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <img src="/static/assets/Bagpack_1_1.jpg" alt="New arrivals" loading="lazy" />
           </div>
-          <div class="swiper-button-next"></div>
-          <div class="swiper-button-prev"></div>
-          <div class="swiper-pagination"></div>
-          <div class="autoplay-progress">
-            <svg viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="20"></circle>
-            </svg>
-            <span></span>
-          </div>
+          <div class="swiper-slide"><img src="/static/assets/Bagpack_1_2.jpg" alt="New arrivals" loading="lazy" /></div>
+          <div class="swiper-slide"><img src="/static/assets/La_belt_1.jpg" alt="New arrivals" loading="lazy" /></div>
+          <div class="swiper-slide"><img src="/static/assets/La_wallet_3.jpg" alt="New arrivals" loading="lazy" /></div>
+          <div class="swiper-slide"><img src="/static/assets/La_handbag_1.jpg" alt="New arrivals" loading="lazy" /></div>
+          <div class="swiper-slide"><img src="/static/assets/La_belt_7.jpg" alt="New arrivals" loading="lazy" /></div>
+          <div class="swiper-slide"><img src="/static/assets/La_laptop_bag_3.jpg" alt="New arrivals" loading="lazy" /></div>
+          <div class="swiper-slide"><img src="/static/assets/La_purse_1.jpg" alt="New arrivals" loading="lazy" /></div>
+          <div class="swiper-slide"><img src="/static/assets/La_wallet_5.jpg" alt="New arrivals" loading="lazy" /></div>
         </div>
-
-       
-
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+        <div class="autoplay-progress">
+          <svg viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="20"></circle>
+          </svg>
+          <span></span>
+        </div>
       </div>
+
+
+      <!-- <div class="swiper mySwiper">
+        <div class="swiper-wrapper"> -->
+
+      <!-- Replace src with your actual image paths -->
+      <!-- <div class="swiper-slide">
+            <img src="/static/assets/La_belt_4.jpg" alt="Hero banner" loading="lazy" />
+          </div>
+          <div class="swiper-slide">
+            <img src="/static/assets/Bagpack_1_2.jpg" alt="New arrivals" loading="lazy" />
+          </div>
+
+          <div class="swiper-slide">
+            <img src="/static/assets/Bagpack_1_1.jpg" alt="New arrivals" loading="lazy" />
+          </div>
+        </div> -->
     </div>
+  </div>
 </section>
 
 <!-- Categories -->
@@ -120,5 +137,59 @@
     const url = `/product/${encodeURIComponent(id)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   });
+
+
+
+(() => {
+      const toggle = document.getElementById('navToggle');
+      const panel = document.getElementById('navPanel');
+
+      const openMenu = () => {
+        panel.setAttribute('data-state', 'open');
+        toggle.classList.add('is-active');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Close menu');
+        document.body.classList.add('menu-open');
+        document.addEventListener('keydown', onKey, { passive: true });
+        document.addEventListener('click', onClickOutside, true);
+      };
+
+      const closeMenu = () => {
+        panel.setAttribute('data-state', 'closed');
+        toggle.classList.remove('is-active');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open menu');
+        document.body.classList.remove('menu-open');
+        document.removeEventListener('keydown', onKey, { passive: true });
+        document.removeEventListener('click', onClickOutside, true);
+      };
+
+      const onKey = (e) => { if (e.key === 'Escape') closeMenu(); };
+      const onClickOutside = (e) => {
+        if (!panel.contains(e.target) && !toggle.contains(e.target)) closeMenu();
+      };
+
+      toggle.addEventListener('click', () => {
+        const open = panel.getAttribute('data-state') === 'open';
+        open ? closeMenu() : openMenu();
+      });
+
+      // Reset states on resize to desktop
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 960) {
+          // force desktop state
+          panel.setAttribute('data-state', 'open');
+          toggle.classList.remove('is-active');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.setAttribute('aria-label', 'Open menu');
+          document.body.classList.remove('menu-open');
+        } else if (panel.getAttribute('data-state') !== 'closed') {
+          // ensure closed when returning to mobile
+          panel.setAttribute('data-state', 'closed');
+        }
+      });
+    })();
+
+
 </script>
 {% endblock %}
