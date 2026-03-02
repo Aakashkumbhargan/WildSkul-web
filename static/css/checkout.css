@@ -13,6 +13,9 @@
 
 .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
 .grid-3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:.6rem; }
+  @media (max-width: 500px){ .grid-3{ grid-template-columns: none; } }
+  @media (max-width: 400px){ .grid-3{ grid-template-columns: none; } }
+
 .form-group{ display:flex; flex-direction:column; }
 .form-group input{ background:rgba(255,255,255,.06); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:.6rem; }
 .pm-option{ display:flex; align-items:center; gap:.5rem; margin:.25rem 0; }
